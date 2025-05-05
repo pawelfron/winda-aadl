@@ -8,4 +8,5 @@ Projektowany system modeluje zachowanie windy w budynku.
 - dwa przyciski na każdym piętrze (w górę, w dół)
 - jedna kabina
 - uruchamianie alarmu z wewnątrz kabiny
-- system zezwoleń do jechania na konkretne piętra, sprawdzany przez kartę NFC
+- waga w kabinie; jeśli obciążenie przekracza ustalony limit, winda nie ruszy się z miejsca
+- system zezwoleń do jechania na konkretne piętra, sprawdzany przez kartę
