@@ -1,0 +1,11 @@
+package data_types
+public
+	data console_input
+	end console_input;
+
+	data Command
+	end Command;
+
+	data Frame
+	end Frame;
+end data_types;

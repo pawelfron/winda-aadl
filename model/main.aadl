@@ -1,0 +1,22 @@
+package main
+public
+	with Cabin;
+	with Control;
+	with Server;
+	
+	system elevator
+		
+	end elevator;
+	
+	system implementation elevator.impl
+		subcomponents
+			cabin: system Cabin::cabin.impl;
+			control: system Control::control.impl;
+			server: system Server::server.impl;
+		connections
+			c01: port cabin.request -> server.request;
+			c02: port server.response -> cabin.response;
+			c03: port cabin.output -> control.input;
+			c04: port cabin.footage -> server.footage;
+	end elevator.impl;
+end main;

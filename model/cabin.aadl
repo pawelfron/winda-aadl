@@ -1,0 +1,253 @@
+package Cabin
+public
+	with Base_Types;
+	with data_types;
+	with Common;
+
+
+	device console
+		features
+			user_input: out data port data_types::console_input;
+	end console;
+
+	device implementation console.impl
+	end console.impl;
+
+
+	device authenticator
+		features
+			id: out data port Base_Types::Integer;
+	end authenticator;
+	
+	device implementation authenticator.impl
+	end authenticator.impl;
+
+
+	device display
+		features
+			display_frame: in data port data_types::Frame;
+	end display;
+
+
+	device implementation display.impl
+	end display.impl;
+
+
+	device scales
+		features
+			weight: out data port Base_Types::Float;
+	end scales;
+	
+	
+	device implementation scales.impl
+	end scales.impl;
+
+
+	device door
+		features
+			open: in event port;
+			close: in event port;
+	end door;
+
+
+	device implementation door.impl
+	end door.impl;
+
+
+	device motion_sensor
+		features
+			detected: out event port;
+	end motion_sensor;
+
+
+	device implementation motion_sensor.impl
+	end motion_sensor.impl;
+
+
+	device camera
+		features
+			footage: out data port data_types::Frame;
+	end camera;
+
+
+	device implementation camera.impl
+	end camera.impl;
+
+	-- Threads
+
+	thread main_thread
+		features
+			console: in data port data_types::console_input;
+			is_weigh_ok: in data port Base_Types::Boolean;
+			is_authorized: in data port Base_Types::Boolean;
+			is_safe: in data port Base_Types::Boolean;
+			output: out data port data_types::Command;
+			display: out data port data_types::Frame;
+			open_door: out event port;
+			close_door: out event port;
+	end main_thread;
+
+	thread implementation main_thread.impl	
+	end main_thread.impl;
+
+
+	thread auth_thread
+		features
+			auth_input: in data port Base_Types::Integer;
+			console_input: in data port data_types::console_input;
+			request: out data port data_types::Command;
+			response: in data port data_types::Command;
+			is_authorized: out data port Base_Types::Boolean;
+	end auth_thread;
+
+	thread implementation auth_thread.impl
+	end auth_thread.impl;
+
+
+	thread weight_check
+		features
+			weight: in data port Base_Types::Float;
+			is_ok: out data port Base_Types::Boolean;
+	end weight_check;
+
+	thread implementation weight_check.impl
+	end weight_check.impl;
+
+
+	thread motion_sensor_thread
+		features
+			is_movement: in event port;
+			is_safe: out data port Base_Types::Boolean;
+	end motion_sensor_thread;
+
+
+	thread implementation motion_sensor_thread.impl
+	end motion_sensor_thread.impl;
+
+
+	thread handle_input
+		features
+			input: in data port data_types::console_input;
+			output: out data port data_types::console_input;
+	end handle_input;
+
+	thread implementation handle_input.impl
+	end handle_input.impl;
+
+
+	thread monitor
+		features
+			input: in data port data_types::Frame;
+			output: out data port data_types::Frame;
+	end monitor;
+
+	thread implementation monitor.impl
+	end monitor.impl;
+
+
+	thread display_thread
+		features
+			input: in data port data_types::Frame;
+			output: out data port data_types::Frame;
+	end display_thread;
+
+	thread implementation display_thread.impl
+	end display_thread.impl;
+
+	-- Processes
+
+	process main
+		features
+			output: out data port data_types::Command;
+			request: out data port data_types::Command;
+			response: in data port data_types::Command;
+			footage: out data port data_types::Frame;
+
+			console: in data port data_types::console_input;
+			display: out data port data_types::Frame;
+			authenticator: in data port Base_Types::Integer;
+			scales: in data port Base_Types::Float;
+			door_open: out event port;
+			door_close: out event port;
+			motion_sensor: in event port;
+			camera: in data port data_types::Frame;
+	end main;
+
+	process implementation main.impl
+		subcomponents
+			main_thread: thread main_thread.impl;
+			auth_thread: thread auth_thread.impl;
+			weight_check: thread weight_check.impl;
+			motion_sensor_thread: thread motion_sensor_thread.impl;
+			monitor: thread monitor.impl;
+			display_thread: thread display_thread.impl;
+			handle_input: thread handle_input.impl;
+		connections
+			c01: port handle_input.output -> auth_thread.console_input;
+			c02: port authenticator -> auth_thread.auth_input;
+			c03: port auth_thread.request -> request;
+			c04: port response -> auth_thread.response;
+			c05: port auth_thread.is_authorized -> main_thread.is_authorized;
+			c06: port scales -> weight_check.weight;
+			c07: port weight_check.is_ok -> main_thread.is_weigh_ok;
+			c08: port main_thread.output -> output;
+			c09: port motion_sensor_thread.is_safe -> main_thread.is_safe;
+			c10: port main_thread.display -> display_thread.input;
+			c11: port display_thread.output -> display;
+			c12: port motion_sensor -> motion_sensor_thread.is_movement;
+			c13: port camera -> monitor.input;
+			c14: port monitor.output -> footage;
+			c15: port main_thread.open_door -> door_open;
+			c16: port main_thread.close_door -> door_close;
+			c17: port console -> handle_input.input;
+			c18: port handle_input.output -> main_thread.console;
+	end main.impl;
+
+	-- System
+
+	system cabin
+		features
+			output: out data port data_types::Command;
+			request: out data port data_types::Command;
+			response: in data port data_types::Command;
+			footage: out data port data_types::Frame;
+	end cabin;
+
+	system implementation cabin.impl
+		subcomponents
+			console: device console.impl;
+			display: device display.impl;
+			authenticator: device authenticator.impl;
+			scales: device scales.impl;
+			door: device door.impl;
+			motion_sensor: device motion_sensor;
+			camera: device camera.impl;
+
+			cpu: processor Common::cpu.esp32;
+
+			main: process main.impl;
+		connections
+			c01: port console.user_input -> main.console;
+			c02: port main.display -> display.display_frame;
+			c03: port authenticator.id -> main.authenticator;
+			c04: port scales.weight -> main.scales;
+			c05: port main.door_open -> door.open;
+			c06: port main.door_close -> door.close;
+			c09: port motion_sensor.detected -> main.motion_sensor;
+			c10: port camera.footage -> main.camera;
+			c11: port main.output -> output;
+			c12: port main.request -> request;
+			c13: port response -> main.response;
+			c15: port main.footage -> footage;
+		properties
+			Actual_Processor_Binding => (reference(cpu)) applies to main;
+	end cabin.impl;
+end Cabin;
+
+
+
+
+
+
+
+

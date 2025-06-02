@@ -1,0 +1,45 @@
+package Server
+public
+	with Base_Types;
+	with Common;
+	with data_types;
+
+	process permissions
+		features
+			request: in data port data_types::Command;
+			response: out data port data_types::Command;
+	end permissions;
+
+	process implementation permissions.impl
+	end permissions.impl;
+
+	process footage_process
+		features
+			footage: in data port data_types::Frame;
+	end footage_process;
+
+	process implementation footage_process.impl
+	end footage_process.impl;
+
+	system server
+		features
+			request: in data port data_types::Command;
+			response: out data port data_types::Command;
+			footage: in data port data_types::Frame;
+	end server;
+
+	system implementation server.impl
+		subcomponents
+			permissions: process permissions.impl;
+			footage_proc: process footage_process.impl;
+
+			cpu: processor Common::cpu.corei5;
+		connections
+			c01: port request -> permissions.request;
+			c02: port permissions.response -> response;
+			c03: port footage -> footage_proc.footage;
+		properties
+			Actual_Processor_Binding => (reference(cpu)) applies to permissions;
+			Actual_Processor_Binding => (reference(cpu)) applies to footage_proc;
+	end server.impl;
+end Server;

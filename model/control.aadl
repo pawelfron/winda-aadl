@@ -1,0 +1,151 @@
+package Control
+public
+	with Base_Types;
+	with Common;
+	with data_types;
+
+	device engine
+		features
+			direction: in data port Base_Types::Integer;
+			duration: in data port Base_Types::Integer;
+	end engine;
+
+	device implementation engine.impl
+	end engine.impl;
+
+
+	device console
+		features
+			console_input: out data port data_types::Command;
+	end console;
+
+	device implementation console.impl
+	end console.impl;
+
+
+	device door
+		features
+			open: in event port;
+			close: in event port;
+	end door;
+
+	device implementation door.impl
+	end door.impl;
+
+
+	device display
+		features
+			input: in data port data_types::Frame;
+	end display;
+
+	device implementation display.impl
+	end display.impl;
+
+	-- Threads
+
+--	thread main_thread
+--	end main_thread;
+--
+--	thread implementation main_thread.impl
+--	end main_thread.impl;
+
+	-- Process
+
+	process main
+		features
+			input: in data port data_types::Command;
+
+			engine_duration: out data port Base_Types::Integer;
+			engine_direction: out data port Base_Types::Integer;
+
+			console_input1: in data port data_types::Command;	
+			open1: out event port;
+			close1: out event port;
+			display1: out data port data_types::Frame;
+
+			console_input2: in data port data_types::Command;
+			open2: out event port;
+			close2: out event port;
+			display2: out data port data_types::Frame;
+
+			console_input3: in data port data_types::Command;
+			open3: out event port;
+			close3: out event port;
+			display3: out data port data_types::Frame;
+
+			console_input4: in data port data_types::Command;	
+			open4: out event port;
+			close4: out event port;
+			display4: out data port data_types::Frame;
+	end main;
+
+	process implementation main.impl
+--		subcomponents
+--			main_thread: thread main_thread.impl;
+	end main.impl;
+
+	-- System
+
+	system control
+		features
+			input: in data port data_types::Command;
+	end control;
+
+	system implementation control.impl
+		subcomponents
+			engine: device engine.impl;
+
+			door1: device door.impl;
+			display1: device display.impl;
+			console1: device console.impl;
+
+			door2: device door.impl;
+			display2: device display.impl;
+			console2: device console.impl;
+
+			door3: device door.impl;
+			display3: device display.impl;
+			console3: device console.impl;
+
+			door4: device door.impl;
+			display4: device display.impl;
+			console4: device console.impl;
+
+			main: process main.impl;
+
+			cpu: processor Common::cpu.esp32;
+		connections
+			c01: port main.engine_duration -> engine.duration;
+			c02: port main.engine_direction -> engine.direction;
+
+			c03: port console1.console_input -> main.console_input1;
+			c04: port main.open1 -> door1.open;
+			c05: port main.close1 -> door1.close;
+			c06: port main.display1 -> display1.input;
+
+			c07: port console2.console_input -> main.console_input2;
+			c08: port main.open2 -> door2.open;
+			c09: port main.close2 -> door2.close;
+			c10: port main.display2 -> display2.input;
+
+			c11: port console3.console_input -> main.console_input3;
+			c12: port main.open3 -> door3.open;
+			c13: port main.close3 -> door3.close;
+			c14: port main.display3 -> display3.input;
+
+			c15: port console4.console_input -> main.console_input4;
+			c16: port main.open4 -> door4.open;
+			c17: port main.close4 -> door4.close;
+			c18: port main.display4 -> display4.input;
+
+			c19: port input -> main.input;
+		properties
+			Actual_Processor_Binding => (reference(cpu)) applies to main;
+	end control.impl;
+end Control;
+
+
+
+
+
+

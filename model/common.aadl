@@ -1,0 +1,40 @@
+package Common
+public
+	processor cpu
+	end cpu;
+
+	processor implementation cpu.esp32
+	end cpu.esp32;
+
+	processor implementation cpu.corei5
+	end cpu.corei5;
+
+
+	bus I2C
+	end I2C;
+
+
+	bus implementation I2C.impl
+	end I2C.impl;
+
+
+	bus RS485
+	end RS485;
+
+	bus implementation RS485.impl
+	end RS485.impl;
+
+
+	bus elevator_cable
+	end elevator_cable;
+
+	bus implementation elevator_cable.impl
+	end elevator_cable.impl;
+
+
+	memory ram
+	end ram;
+
+	memory implementation ram.impl
+	end ram.impl;
+end Common;
