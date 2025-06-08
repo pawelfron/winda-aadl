@@ -10,6 +10,22 @@ public
 	end cpu.corei5;
 
 
+	processor corei5
+		features
+			eth: requires bus access ethernet;
+			ec: requires bus access elevator_cable;
+			RS485: requires bus access RS485;
+	end corei5;
+
+
+	processor esp32
+		features
+			eth: requires bus access ethernet;
+			ec: requires bus access elevator_cable;
+			i2c: requires bus access I2C;
+	end esp32;
+
+
 	bus I2C
 	end I2C;
 
@@ -32,9 +48,32 @@ public
 	end elevator_cable.impl;
 
 
+	bus ethernet
+	end ethernet;
+
+	bus implementation ethernet.impl
+	end ethernet.impl;
+
+
 	memory ram
 	end ram;
 
 	memory implementation ram.impl
 	end ram.impl;
+
+
+	memory database
+		features
+			eth: requires bus access ethernet;
+	end database;
+
+	memory implementation database.permissions
+	end database.permissions;
+
+	memory implementation database.footage
+	end database.footage;
 end Common;
+
+
+
+

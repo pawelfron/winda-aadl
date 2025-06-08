@@ -77,6 +77,7 @@ public
 
 	thread main_thread
 		features
+			input: in data port data_types::Command;
 			console: in data port data_types::console_input;
 			is_weigh_ok: in data port Base_Types::Boolean;
 			is_authorized: in data port Base_Types::Boolean;
@@ -159,6 +160,7 @@ public
 	process main
 		features
 			output: out data port data_types::Command;
+			input: in data port data_types::Command;
 			request: out data port data_types::Command;
 			response: in data port data_types::Command;
 			footage: out data port data_types::Frame;
@@ -201,6 +203,7 @@ public
 			c16: port main_thread.close_door -> door_close;
 			c17: port console -> handle_input.input;
 			c18: port handle_input.output -> main_thread.console;
+			c19: port input -> main_thread.input;
 	end main.impl;
 
 	-- System
@@ -208,6 +211,7 @@ public
 	system cabin
 		features
 			output: out data port data_types::Command;
+			input: in data port data_types::Command;
 			request: out data port data_types::Command;
 			response: in data port data_types::Command;
 			footage: out data port data_types::Frame;
@@ -223,9 +227,13 @@ public
 			motion_sensor: device motion_sensor;
 			camera: device camera.impl;
 
-			cpu: processor Common::cpu.esp32;
+			cpu: processor Common::esp32;
 
 			main: process main.impl;
+
+			ethernet: bus Common::ethernet;
+			elevator_cable: bus Common::elevator_cable;
+			I2C: bus Common::I2C;
 		connections
 			c01: port console.user_input -> main.console;
 			c02: port main.display -> display.display_frame;
@@ -239,8 +247,25 @@ public
 			c12: port main.request -> request;
 			c13: port response -> main.response;
 			c15: port main.footage -> footage;
+			c16: port input -> main.input;
+			eth1: bus access cpu.eth <-> ethernet;
+			ecl1: bus access cpu.ec <-> elevator_cable;
+			i2c1: bus access cpu.i2c <-> I2C;
 		properties
 			Actual_Processor_Binding => (reference(cpu)) applies to main;
+			Actual_Connection_Binding => (reference(ethernet)) applies to c15;
+			Actual_Connection_Binding => (reference(ethernet)) applies to c13;
+			Actual_Connection_Binding => (reference(ethernet)) applies to c12;
+			Actual_Connection_Binding => (reference(elevator_cable)) applies to c11;
+			Actual_Connection_Binding => (reference(elevator_cable)) applies to c16;
+			Actual_Connection_Binding => (reference(I2C)) applies to c01;
+			Actual_Connection_Binding => (reference(I2C)) applies to c02;
+			Actual_Connection_Binding => (reference(I2C)) applies to c03;
+			Actual_Connection_Binding => (reference(I2C)) applies to c04;
+			Actual_Connection_Binding => (reference(I2C)) applies to c05;
+			Actual_Connection_Binding => (reference(I2C)) applies to c06;
+			Actual_Connection_Binding => (reference(I2C)) applies to c09;
+			Actual_Connection_Binding => (reference(I2C)) applies to c10;
 	end cabin.impl;
 end Cabin;
 

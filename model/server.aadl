@@ -1,6 +1,5 @@
 package Server
 public
-	with Base_Types;
 	with Common;
 	with data_types;
 
@@ -33,13 +32,28 @@ public
 			permissions: process permissions.impl;
 			footage_proc: process footage_process.impl;
 
-			cpu: processor Common::cpu.corei5;
+			cpu: processor Common::corei5;
+			permissions_database: memory Common::database.permissions;
+			footage_database: memory Common::database.footage;
+
+			eth: bus Common::ethernet.impl;
 		connections
 			c01: port request -> permissions.request;
 			c02: port permissions.response -> response;
 			c03: port footage -> footage_proc.footage;
+			eth1: bus access cpu.eth <-> eth;
+			eth2: bus access permissions_database.eth <-> eth;
+			eth3: bus access footage_database.eth <-> eth;
 		properties
 			Actual_Processor_Binding => (reference(cpu)) applies to permissions;
 			Actual_Processor_Binding => (reference(cpu)) applies to footage_proc;
+			Actual_Memory_Binding => (reference(permissions_database)) applies to permissions;
+			Actual_Memory_Binding => (reference(footage_database)) applies to footage_proc;
+			Actual_Connection_Binding => (reference(eth)) applies to c01;
+			Actual_Connection_Binding => (reference(eth)) applies to c02;
+			Actual_Connection_Binding => (reference(eth)) applies to c03;
 	end server.impl;
 end Server;
+
+
+

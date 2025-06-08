@@ -3,9 +3,9 @@ public
 	with Cabin;
 	with Control;
 	with Server;
-	
+	with Common;
+
 	system elevator
-		
 	end elevator;
 	
 	system implementation elevator.impl
@@ -13,10 +13,20 @@ public
 			cabin: system Cabin::cabin.impl;
 			control: system Control::control.impl;
 			server: system Server::server.impl;
+
+			ethernet: bus Common::ethernet;
+			elevator_cable: bus Common::elevator_cable;
 		connections
 			c01: port cabin.request -> server.request;
 			c02: port server.response -> cabin.response;
 			c03: port cabin.output -> control.input;
-			c04: port cabin.footage -> server.footage;
+			c04: port control.output -> cabin.input;
+			c05: port cabin.footage -> server.footage;
+		properties
+			Actual_Connection_Binding => (reference(ethernet)) applies to c01;
+			Actual_Connection_Binding => (reference(ethernet)) applies to c02;
+			Actual_Connection_Binding => (reference(ethernet)) applies to c05;
+			Actual_Connection_Binding => (reference(elevator_cable)) applies to c04;
+			Actual_Connection_Binding => (reference(elevator_cable)) applies to c03;
 	end elevator.impl;
 end main;

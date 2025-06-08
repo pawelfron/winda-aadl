@@ -54,6 +54,7 @@ public
 	process main
 		features
 			input: in data port data_types::Command;
+			output: out data port data_types::Command;
 
 			engine_duration: out data port Base_Types::Integer;
 			engine_direction: out data port Base_Types::Integer;
@@ -89,6 +90,7 @@ public
 	system control
 		features
 			input: in data port data_types::Command;
+			output: out data port data_types::Command;
 	end control;
 
 	system implementation control.impl
@@ -113,7 +115,10 @@ public
 
 			main: process main.impl;
 
-			cpu: processor Common::cpu.esp32;
+			cpu: processor Common::corei5;
+			
+			elevator_cable: bus Common::elevator_cable;
+			RS485: bus Common::RS485;
 		connections
 			c01: port main.engine_duration -> engine.duration;
 			c02: port main.engine_direction -> engine.direction;
@@ -139,8 +144,33 @@ public
 			c18: port main.display4 -> display4.input;
 
 			c19: port input -> main.input;
+			c20: port main.output -> output;
+			
+			c21: bus access cpu.ec <-> elevator_cable;
+			c22: bus access cpu.RS485 <-> RS485;
 		properties
 			Actual_Processor_Binding => (reference(cpu)) applies to main;
+			Actual_Connection_Binding => (reference(elevator_cable)) applies to c19;
+			Actual_Connection_Binding => (reference(elevator_cable)) applies to c20;
+
+			Actual_Connection_Binding => (reference(RS485)) applies to c01;
+			Actual_Connection_Binding => (reference(RS485)) applies to c02;
+			Actual_Connection_Binding => (reference(RS485)) applies to c03;
+			Actual_Connection_Binding => (reference(RS485)) applies to c04;
+			Actual_Connection_Binding => (reference(RS485)) applies to c05;
+			Actual_Connection_Binding => (reference(RS485)) applies to c06;
+			Actual_Connection_Binding => (reference(RS485)) applies to c07;
+			Actual_Connection_Binding => (reference(RS485)) applies to c08;
+			Actual_Connection_Binding => (reference(RS485)) applies to c09;
+			Actual_Connection_Binding => (reference(RS485)) applies to c10;
+			Actual_Connection_Binding => (reference(RS485)) applies to c11;
+			Actual_Connection_Binding => (reference(RS485)) applies to c12;
+			Actual_Connection_Binding => (reference(RS485)) applies to c13;
+			Actual_Connection_Binding => (reference(RS485)) applies to c14;
+			Actual_Connection_Binding => (reference(RS485)) applies to c15;
+			Actual_Connection_Binding => (reference(RS485)) applies to c16;
+			Actual_Connection_Binding => (reference(RS485)) applies to c17;
+			Actual_Connection_Binding => (reference(RS485)) applies to c18;
 	end control.impl;
 end Control;
 
